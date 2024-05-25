@@ -1,19 +1,31 @@
 import { categories } from "../data/categories"
-import { useState, ChangeEvent, FormEvent, Dispatch } from "react"
+import { v4 as uuidv4 } from 'uuid'
+import { useState, ChangeEvent, FormEvent, Dispatch, useEffect } from "react"
 import type { Activity } from "../types/types"
-import { ActivityActions } from "../reducers/activity-reducer"
+import { ActivityActions, ActivityState } from "../reducers/activity-reducer"
 
 type FormProps = {
     dispatch: Dispatch<ActivityActions>
+    state: ActivityState
 }
 
-export default function Form({ dispatch }: FormProps) {
+const initialState: Activity = {
+    id: uuidv4(),
+    category: 1,
+    name: '',
+    calories: 0
+}
 
-    const [activity, setActivity] = useState<Activity>({
-        category: 1,
-        name: '',
-        calories: 0
-    })
+export default function Form({ dispatch, state }: FormProps) {
+
+    const [activity, setActivity] = useState<Activity>(initialState)
+
+    useEffect(() => {
+        if (state.activeId) {
+            const selectedActivity = state.activities.filter(stateActivity => stateActivity.id === state.activeId)[0]
+            setActivity(selectedActivity)
+        }
+    }, [state.activeId])
 
     const handleChange = (e: ChangeEvent<HTMLSelectElement> | ChangeEvent<HTMLInputElement>) => {
         const isNumberField = ['category', 'calories'].includes(e.target.id)
@@ -24,7 +36,7 @@ export default function Form({ dispatch }: FormProps) {
         })
     }
 
-    const isValidActivuty = () => {
+    const isValidActivity = () => {
         const { name, calories } = activity
         return name.trim() !== '' && calories > 0
     }
@@ -33,6 +45,10 @@ export default function Form({ dispatch }: FormProps) {
         e.preventDefault()
 
         dispatch({ type: "save-activity", payload: { newActivity: activity } })
+        setActivity({
+            ...initialState,
+            id: uuidv4()
+        })
     }
 
 
@@ -48,7 +64,8 @@ export default function Form({ dispatch }: FormProps) {
                     onChange={handleChange}
                 >
                     {categories.map(category => (
-                        <option key={category.id}
+                        <option
+                            key={category.id}
                             value={category.id}
                         >
                             {category.name}
@@ -85,7 +102,7 @@ export default function Form({ dispatch }: FormProps) {
                 type="submit"
                 className=" bg-gray-800 hover:bg-gray-900 w-full p-2 font-bold uppercase text-white cursor-pointer disabled:opacity-10"
                 value={activity.category === 1 ? 'Guardar Comida' : 'Guardar Ejercicio'}
-                disabled={!isValidActivuty()}
+                disabled={!isValidActivity()}
             />
         </form>
     )
