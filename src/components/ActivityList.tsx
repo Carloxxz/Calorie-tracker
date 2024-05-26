@@ -26,11 +26,11 @@ export default function ActivityList({ activities, dispatch }: ActivityListProps
                 Comida y Actividades
             </h2>
 
-            {isEmptyActivities ? <p className="text-center">No hay actividades</p> :
+            {isEmptyActivities ? <p className="text-center my-5">No hay actividades</p> :
 
                 activities.map(activity => (
                     <div key={activity.id}
-                        className=" px-5 py-10 bg-white mt-5 flex justify-between"
+                        className=" px-5 py-10 bg-white mt-5 flex justify-between shadow"
                     >
                         <div className=" space-y-2 relative">
                             <p className={` absolute -top-8 -lef-8 px-10 py-2 text-white uppercase font-bold ${activity.category
